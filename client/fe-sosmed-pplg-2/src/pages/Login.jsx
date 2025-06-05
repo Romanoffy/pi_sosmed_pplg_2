@@ -4,6 +4,7 @@ import { styled } from '@mui/material'
 import { Box, Button, FormControl, FormLabel, TextField, Typography } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { Link } from "react-router-dom"
+import { useForm } from 'react-hook-form'
 
 export const CardRegister = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -66,6 +67,8 @@ export const SignInContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 const Login = () => {
+    const { register, handleSubmit } = useForm()
+    const onSubmit = (value) => console.log(value)
   return (
     <>
             <CssBaseline enableColorScheme />
@@ -80,7 +83,7 @@ const Login = () => {
                     </Typography>
                     <Box
                         component="form"
-                        // onSubmit={handleSubmit}
+                        onSubmit={handleSubmit(onSubmit)}
                         noValidate
                         sx={{
                             display: 'flex',
@@ -103,6 +106,7 @@ const Login = () => {
                                 required
                                 fullWidth
                                 variant="outlined"
+                                {...register('username')}
                             // color={emailError ? 'error' : 'primary'}
                             />
                         </FormControl>
@@ -120,6 +124,7 @@ const Login = () => {
                                 required
                                 fullWidth
                                 variant="outlined"
+                                {...register('password')}
                             // color={passwordError ? 'error' : 'primary'}
                             />
                         </FormControl>
