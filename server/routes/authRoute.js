@@ -1,13 +1,47 @@
 const { body } = require('express-validator')
 const auth_ctrl = require('../controller/auth_ctrl')
 const { major, user } = require('../models')
+const bcryptjs = require('bcryptjs')
+const { authenticateJWT } = require('../middleware/authMiddleware')
 
 module.exports = (app) => {
     const router = app.Router()
 
+    router.get("/me", authenticateJWT, (req, res) => {
+        res.status(200).json({
+            message: 'token is valid',
+            data: req?.user
+        })
+    })
+
+    router.post("/login",  [
+        body('username').notEmpty().withMessage("Username is required !").isLength({ min: 4, max: 20 }).custom(async (values) => {
+            let userData = await user.findOne({
+                where: {
+                    username: values
+                }
+            })
+
+            if (!!userData == false) {
+                throw new Error('username has not been registered!');
+            }
+            this.user = userData
+        }),
+        body('password').notEmpty().withMessage('Password is required !').isLength({ min: 6, max: 100 }).custom(async (values) => {
+            if(!!this.user){
+            let isCorrectPass = await bcryptjs.compare(values, this.user?.password)
+
+            if (!isCorrectPass) {
+                throw new Error('Invalid Password !');
+            }
+        }
+        }),
+     
+    ], auth_ctrl.login)
+
     router.post('/register', 
         [
-        body('username').notEmpty().isLength({ min: 6, max: 20 }).custom(async (values) => {
+        body('username').notEmpty().isLength({ min: 4, max: 20 }).custom(async (values) => {
             let userData = await user.findOne({
                 where: {
                     username: values
